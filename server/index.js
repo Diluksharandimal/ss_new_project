@@ -155,7 +155,7 @@ app.get('/getUserType', async (req, res) => {
             res.status(404).json({ message: 'User not found' });
         }
     } catch (err) {
-        console.error("Error fetching user type:", err);
+        console.error("Error fetching user type:", err); 
         res.status(500).json({ message: 'Error fetching user type' });
     }
 });

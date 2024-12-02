@@ -1,23 +1,32 @@
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LandingPage from './components/LandingPage/LandingPage';
+import SignIn from './components/SignIn/SignIn';
+import Home from './components/Home/Home';
+import AdminHome from './components/AdminHome/AdminHome';
+import SignUp from './components/SignUp/SignUp';
+import UserActivities from './components/UserActivities/UserActivities';
+import ManageUsers from './components/ManageUsers/ManageUsers';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <BrowserRouter>
+        <ToastContainer position="top-center" style={{marginTop: "70px"}}/>
+            <main>
+              <Routes>
+                <Route path='/' element={<LandingPage/>}/>
+                <Route path='/signup' element={<SignUp/>}/>
+                <Route path="/signin" element={<SignIn/>}/>
+                <Route path="/home" element={<Home/>}/>
+                <Route path="/adminhome" element={<AdminHome/>}/>
+                <Route path="/useractivity" element={<UserActivities/>}/>
+                <Route path="/usermanage" element={<ManageUsers/>}/>
+              </Routes>
+            </main>
+        </BrowserRouter>
     </div>
   );
 }
