@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const bcrypt = require("bcrypt");
+
 const app = express();
 
 // Allow specific origins in CORS
@@ -67,6 +68,7 @@ async function logAction(userId, action) {
 app.post("/signup", async (req, res) => {
     const { name, email, password, userType } = req.body;
 
+    // Ensure all fields are provided
     if (!name || !email || !password || !userType) {
         return res.status(400).json({ error: "All fields are required" });
     }
@@ -79,7 +81,7 @@ app.post("/signup", async (req, res) => {
 
         const values = [name, email, hashedPassword, userType];
         await db.query(sql, values);
-        
+
         res.status(201).json({ message: "User Registered Successfully" });
     } catch (err) {
         console.error("Error in /signup:", err);
@@ -137,12 +139,12 @@ app.post("/logout", authenticateToken, async (req, res) => {
 // Fetch user data route
 app.get("/users", authenticateToken, async (req, res) => {
     const sql = "SELECT * FROM signs WHERE id = ?";
-    
+
     try {
         const [data] = await db.query(sql, [req.user.id]);
-        
+
         await logAction(req.user.id, "Viewed own data");
-        
+
         if (data.length > 0) {
             return res.json(data[0]);
         } else {
@@ -151,25 +153,6 @@ app.get("/users", authenticateToken, async (req, res) => {
     } catch (err) {
         console.error("Error fetching user data:", err);
         res.status(500).json({ error: "Error fetching data" });
-    }
-});
-
-// Corrected getUserType route
-app.get('/getUserType', async (req, res) => {
-    const email = req.query.email;
-    const sql = "SELECT userType FROM signs WHERE email = ?";
-
-    try {
-        const [data] = await db.query(sql, [email]);
-
-        if (data.length > 0) {
-            res.json({ userType: data[0].userType });
-        } else {
-            res.status(404).json({ message: 'User not found' });
-        }
-    } catch (err) {
-        console.error("Error fetching user type:", err);
-        res.status(500).json({ message: 'Error fetching user type' });
     }
 });
 
@@ -199,7 +182,7 @@ app.get('/viewUsers', async (req, res) => {
     }
 });
 
-// API for health check
+// Health check route
 app.get("/", (req, res) => {
     res.send("Server is running");
 });
@@ -216,10 +199,10 @@ app.get("/test-db", async (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 8089; // Use PORT from environment variables or default to 8089
+const PORT = process.env.PORT || 8089;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Export the app for Vercel
-module.exports = app; // Only exporting the app
+// Export app for Vercel
+module.exports = app;
