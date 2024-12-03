@@ -34,7 +34,7 @@ const SignUp = () => {
     // If no validation errors, submit the form
     if (!validationErrors.name && !validationErrors.email && !validationErrors.password && !validationErrors.confirmPassword) {
       try {
-        const response = await axios.post('https://ss-new-project.vercel.app/signup', values); // Updated URL
+        const response = await axios.post('https://www.infolock.live/SignUp', values); // Updated URL
 
         if (response.status === 200) {
           const { token } = response.data; // Assume the token is returned in response.data
