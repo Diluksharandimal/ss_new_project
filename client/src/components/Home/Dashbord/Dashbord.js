@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
-import './Dashbord.css';
 
 function Dashbord() {
   const [formData, setFormData] = useState({
@@ -166,6 +165,108 @@ function Dashbord() {
           </form>
         </div>
       </div>
+
+      <style jsx>{`
+        .home {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+        }
+
+        .admin-welcome {
+          font-size: 24px;
+          color: #333;
+          text-align: center;
+        }
+
+        .app-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-top: 20px;
+        }
+
+        .profile-card {
+          background-color: #f9f9f9;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          padding: 20px;
+          width: 100%;
+          max-width: 400px;
+          text-align: center;
+        }
+
+        .profile-image img {
+          border-radius: 50%;
+          width: 150px;
+          height: 150px;
+          object-fit: cover;
+        }
+
+        .user-info p {
+          font-size: 16px;
+          color: #555;
+          margin: 5px 0;
+        }
+
+        .buttons {
+          margin-top: 20px;
+        }
+
+        .logout-btn {
+          background-color: #f44336;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          cursor: pointer;
+          font-size: 16px;
+          border-radius: 5px;
+          transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+          background-color: #d32f2f;
+        }
+
+        .edit-profile-form {
+          background-color: #fff;
+          padding: 20px;
+          width: 100%;
+          max-width: 400px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-top: 40px;
+        }
+
+        .edit-profile-form h2 {
+          font-size: 22px;
+          color: #333;
+          margin-bottom: 15px;
+        }
+
+        .home_input {
+          width: 100%;
+          padding: 10px;
+          margin: 10px 0;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          font-size: 16px;
+        }
+
+        .update-btn {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          font-size: 16px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .update-btn:hover {
+          background-color: #45a049;
+        }
+      `}</style>
     </div>
   );
 }
