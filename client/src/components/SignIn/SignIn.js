@@ -58,7 +58,7 @@ const SignIn = () => {
 
         if (validationErrors.email === "" && validationErrors.password === "") {
             try {
-                const res = await axios.post('https://ss-new-project-server.vercel.app/signin', values); // Use the backend URL
+                const res = await axios.post('https://ss-new-project-server.vercel.app/signin', values); 
 
                 if (res.data.token) { // Check if token is present in response
                     localStorage.setItem('token', res.data.token); // Store the JWT token in local storage
