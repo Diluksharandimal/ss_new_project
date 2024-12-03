@@ -186,8 +186,105 @@ function AdminHome() {
           </form>
         </div>
       </div>
+      <style jsx>{`
+        .home {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+          background-color: #f9f9f9;
+        }
+        .admin-welcome {
+          font-size: 24px;
+          color: #333;
+          text-align: center;
+          margin-bottom: 30px;
+        }
+        .app-container {
+          display: flex;
+          justify-content: space-between;
+        }
+        .profile-card {
+          width: 30%;
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-image img {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .profile-card h2 {
+          text-align: center;
+          margin: 20px 0;
+        }
+        .user-info {
+          margin: 10px 0;
+        }
+        .user_data {
+          font-size: 16px;
+          color: #555;
+        }
+        .buttons {
+          display: flex;
+          justify-content: center;
+        }
+        .logout-btn {
+          background-color: #f44336;
+          color: #fff;
+          border: none;
+          padding: 10px 20px;
+          cursor: pointer;
+          border-radius: 4px;
+          transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+          background-color: #d32f2f;
+        }
+        .edit-profile-form {
+          width: 65%;
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .home_h1 {
+          font-size: 22px;
+          margin-bottom: 20px;
+        }
+        .home_input {
+          width: 100%;
+          padding: 10px;
+          margin: 10px 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+        }
+        .update-btn {
+          background-color: #4caf50;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          cursor: pointer;
+          border-radius: 4px;
+          transition: background-color 0.3s;
+        }
+        .update-btn:hover {
+          background-color: #45a049;
+        }
+        .user_view_btn {
+          display: block;
+          margin-top: 15px;
+          text-align: center;
+          color: #2196f3;
+          text-decoration: none;
+        }
+        .user_view_btn:hover {
+          text-decoration: underline;
+        }
+      `}</style>
     </div>
   );
 }
 
-export default AdminHome; 
+export default AdminHome;
