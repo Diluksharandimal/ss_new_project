@@ -42,11 +42,11 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 // Middleware for token authentication
 function authenticateToken(req, res, next) {
     const token = req.headers['authorization'];
-    if (!token || !token.startsWith('Bearer ')) return res.status(401).json("Access Denied: No Token Provided");
+    if (!token || !token.startsWith('Bearer ')) return res.status(401).json({ error: "Access Denied: No Token Provided" });
 
     jwt.verify(token.split(' ')[1], JWT_SECRET, (err, user) => {
         if (err) {
-            return res.status(403).json("Invalid Token");
+            return res.status(403).json({ error: "Invalid Token" });
         }
         req.user = user;
         next();
@@ -66,60 +66,61 @@ async function logAction(userId, action) {
 // Signup route
 app.post("/signup", async (req, res) => {
     const { name, email, password, userType } = req.body;
+
+    if (!name || !email || !password || !userType) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
     const sql = "INSERT INTO signs (name, email, password, userType) VALUES (?, ?, ?, ?)";
 
     try {
-        if (!name || !email || !password || !userType) {
-            return res.status(400).json("All fields are required");
-        }
-
         // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds, which determines the hashing complexity
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
 
-        // Insert the user with the hashed password
         const values = [name, email, hashedPassword, userType];
         await db.query(sql, values);
         
-        res.json("User Registered Successfully");
+        res.status(201).json({ message: "User Registered Successfully" });
     } catch (err) {
         console.error("Error in /signup:", err);
-        res.status(500).json("Error registering user");
+        res.status(500).json({ error: "Error registering user" });
     }
 });
 
-// Sign-in route (login)
+// Sign-in route
 app.post("/signin", async (req, res) => {
     const { email, password } = req.body;
     const sql = "SELECT * FROM signs WHERE email = ?";
 
     try {
         if (!email || !password) {
-            return res.status(400).json("Email and Password are required");
+            return res.status(400).json({ error: "Email and Password are required" });
         }
 
         const [data] = await db.query(sql, [email]);
 
-        if (data.length > 0) {
-            const user = data[0];
-
-            // Compare the password using bcrypt
-            const passwordMatch = await bcrypt.compare(password, user.password);
-            if (!passwordMatch) {
-                await logAction(user.id, "Login Failed");
-                return res.status(401).json("Login Failed");
-            }
-
-            // Generate JWT
-            const token = jwt.sign({ id: user.id, name: user.name }, JWT_SECRET, { expiresIn: '2h' });
-            await logAction(user.id, "Signed in");
-            res.json({ message: "Login Successful", token });
-        } else {
+        if (data.length === 0) {
             await logAction(null, `Login Failed for email: ${email}`);
-            return res.status(401).json("Login Failed");
+            return res.status(401).json({ error: "Login Failed" });
         }
+
+        const user = data[0];
+
+        // Compare the password using bcrypt
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            await logAction(user.id, "Login Failed");
+            return res.status(401).json({ error: "Login Failed" });
+        }
+
+        // Generate JWT
+        const token = jwt.sign({ id: user.id, name: user.name }, JWT_SECRET, { expiresIn: '2h' });
+        await logAction(user.id, "Signed in");
+
+        res.json({ message: "Login Successful", token });
     } catch (err) {
         console.error("Error in /signin:", err);
-        res.status(500).json("Error during sign-in");
+        res.status(500).json({ error: "Error during sign-in" });
     }
 });
 
@@ -145,11 +146,11 @@ app.get("/users", authenticateToken, async (req, res) => {
         if (data.length > 0) {
             return res.json(data[0]);
         } else {
-            return res.status(404).json("User not found");
+            return res.status(404).json({ error: "User not found" });
         }
     } catch (err) {
         console.error("Error fetching user data:", err);
-        res.status(500).json("Error fetching data");
+        res.status(500).json({ error: "Error fetching data" });
     }
 });
 
@@ -215,7 +216,7 @@ app.get("/test-db", async (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 8089; // Use PORT from environment variables or default to 8087
+const PORT = process.env.PORT || 8089; // Use PORT from environment variables or default to 8089
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
