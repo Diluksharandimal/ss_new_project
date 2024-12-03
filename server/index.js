@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const bcrypt = require("bcrypt");
-
 const app = express();
 
 // Allow specific origins in CORS
@@ -65,44 +64,37 @@ async function logAction(userId, action) {
 }
 
 // Signup route
-// Signup route
-app.post("/signup", async (req, res) => {
-    const { name, email, password, userType } = req.body;
-
-    // Ensure all fields are provided
-    if (!name || !email || !password || !userType) {
-        return res.status(400).json({ error: "All fields are required" });
-    }
-
-    // SQL query to insert a new user
-    const sql = "INSERT INTO signs (name, email, password, userType) VALUES (?, ?, ?, ?)";
-
+app.post('/signup', async (req, res) => {
     try {
-        // Check if the user already exists
-        const checkUserSql = "SELECT * FROM signs WHERE email = ?";
-        const [existingUser] = await db.query(checkUserSql, [email]);
-
-        if (existingUser.length > 0) {
-            return res.status(409).json({ error: "Email already exists" });
-        }
-
-        // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
-
-        const values = [name, email, hashedPassword, userType];
-
-        // Insert the new user into the database
-        await db.query(sql, values);
-
-        // Optionally, create a JWT token for the user
-        // const token = jwt.sign({ email }, 'your-jwt-secret', { expiresIn: '1h' });
-
-        res.status(201).json({ message: "User Registered Successfully" });
-    } catch (err) {
-        console.error("Error in /signup:", err);
-        res.status(500).json({ error: "Error registering user" });
+      const { name, email, password, userType } = req.body;
+  
+      // Validate inputs (you could add more validation here)
+      if (!email || !password || !name || !userType) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+  
+      // Check if the user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({ message: 'Email already exists' });
+      }
+  
+      // Create the new user
+      const newUser = new User({
+        name,
+        email,
+        password, // Don't forget to hash the password in production
+        userType,
+      });
+  
+      await newUser.save();
+      res.status(200).json({ message: 'User created successfully', token: 'some-jwt-token' });
+    } catch (error) {
+      console.error('Error during signup:', error);
+      res.status(500).json({ message: 'An internal error occurred' });
     }
-});
+  });
+  
 
 // Sign-in route
 app.post("/signin", async (req, res) => {
@@ -154,12 +146,12 @@ app.post("/logout", authenticateToken, async (req, res) => {
 // Fetch user data route
 app.get("/users", authenticateToken, async (req, res) => {
     const sql = "SELECT * FROM signs WHERE id = ?";
-
+    
     try {
         const [data] = await db.query(sql, [req.user.id]);
-
+        
         await logAction(req.user.id, "Viewed own data");
-
+        
         if (data.length > 0) {
             return res.json(data[0]);
         } else {
@@ -168,6 +160,25 @@ app.get("/users", authenticateToken, async (req, res) => {
     } catch (err) {
         console.error("Error fetching user data:", err);
         res.status(500).json({ error: "Error fetching data" });
+    }
+});
+
+// Corrected getUserType route
+app.get('/getUserType', async (req, res) => {
+    const email = req.query.email;
+    const sql = "SELECT userType FROM signs WHERE email = ?";
+
+    try {
+        const [data] = await db.query(sql, [email]);
+
+        if (data.length > 0) {
+            res.json({ userType: data[0].userType });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (err) {
+        console.error("Error fetching user type:", err);
+        res.status(500).json({ message: 'Error fetching user type' });
     }
 });
 
@@ -197,7 +208,7 @@ app.get('/viewUsers', async (req, res) => {
     }
 });
 
-// Health check route
+// API for health check
 app.get("/", (req, res) => {
     res.send("Server is running");
 });
@@ -214,10 +225,10 @@ app.get("/test-db", async (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 8089;
+const PORT = process.env.PORT || 8089; // Use PORT from environment variables or default to 8089
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Export app for Vercel
-module.exports = app;
+// Export the app for Vercel
+module.exports = app; // Only exporting the app
