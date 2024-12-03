@@ -72,7 +72,7 @@ const SignUp = () => {
     <div className="signup-page">
       <div className="container">
         <div className="login-content">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} method="POST">
             <h2 className="title">Welcome</h2>
 
             {errors.general && <p className="error-message">{errors.general}</p>}
