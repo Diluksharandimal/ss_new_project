@@ -1,163 +1,222 @@
-import React, { useState, useEffect } from 'react';
-import './SignIn.css';
-import { ToastContainer, toast } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
-import { useNavigate } from 'react-router-dom'; 
-import axios from 'axios'; 
-import Validation from '../Validation/LoginValidation'; // Import the validation function
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { toast } from "react-toastify";
 
-const SignIn = () => {
-    const [values, setValues] = useState({
-        email: '',
-        password: '',
-        userType: '' // State for user type
-    });
+function Signin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userType, setUserType] = useState("user"); // Default to "user"
+  const navigate = useNavigate(); // Create a navigate function
 
-    const [errors, setErrors] = useState({});
-    const navigate = useNavigate(); 
+  useEffect(() => {
+    // Automatically set the user type based on the email domain
+    const domain = email.split('@')[1];
+    if (domain === "admin.com") { // You can change this to any domain or condition
+      setUserType("admin");
+    } else {
+      setUserType("user");
+    }
+  }, [email]); // Trigger on email change
 
-    // Fetch user type based on email input
-    const fetchUserType = async (email) => {
-        try {
-            const res = await axios.get(`https://ss-new-project-server.vercel.app/getUserType?email=${email}`); // Use the backend URL
-            if (res.data.userType) {
-                setValues((prevValues) => ({
-                    ...prevValues,
-                    userType: res.data.userType
-                }));
-            } else {
-                setValues((prevValues) => ({
-                    ...prevValues,
-                    userType: ''
-                }));
-            }
-        } catch (error) {
-            console.error('Error fetching user type:', error);
-            toast.error("Failed to fetch user type.");
-        }
-    };
+  const handleSignin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:8089/signin", {
+        email,
+        password,
+        userType, // Include the userType in the request
+      });
+      toast.success(response.data.message);
+      localStorage.setItem("token", response.data.token); // Save token to localStorage
+      navigate("/dashboard"); // Use navigate() instead of history.push
+    } catch (err) {
+      toast.error("Login Failed");
+    }
+  };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setValues({
-            ...values,
-            [name]: value,
-        });
-
-        // Fetch user type when email changes
-        if (name === 'email') {
-            fetchUserType(value);
-        }
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
-        const validationErrors = Validation(values);
-        setErrors(validationErrors);
-
-        if (validationErrors.email === "" && validationErrors.password === "") {
-            try {
-                const res = await axios.post('https://ss-new-project-server.vercel.app/signin', values); 
-
-                if (res.data.token) { // Check if token is present in response
-                    localStorage.setItem('token', res.data.token); // Store the JWT token in local storage
-                    toast.success('Login successful!');
-
-                    // Navigate based on user type
-                    if (values.userType === 'admin') {
-                        navigate('/adminhome'); // Navigate to admin home
-                    } else if (values.userType === 'user') {
-                        navigate('/home'); // Navigate to user home
-                    } else {
-                        toast.error("Invalid user type.");
-                    }
-                } else {
-                    toast.error("No records existed"); 
-                }
-            } catch (err) {
-                console.error('Error:', err); 
-                toast.error("An error occurred. Please try again.");
-            }
-        }
-    };
-
-    return (
-        <div>
-            <img className="wave" src="" alt="wave" />
-            <div className="container">
-                <div className="img">
-                    <h1 className="title1">SIGN IN</h1>
-                    <img src="" alt="background" />
-                </div>
-                <div className="login-content">
-                    <form onSubmit={handleSubmit}>
-                        <img src="" alt="avatar" />
-                        <h2 className="title">Welcome Back</h2>
-
-                        <div className="input-div one">
-                            <div className="i">
-                                <i className="fas fa-envelope"></i>
-                            </div>
-                            <div className="div">
-                                <input 
-                                    type="email" 
-                                    className="input" 
-                                    placeholder='Email'
-                                    name="email"
-                                    value={values.email}
-                                    onChange={handleChange} 
-                                />
-                                {errors.email && <span className="error-message">{errors.email}</span>} {/* Display email error */}
-                            </div>
-                        </div>
-
-                        <div className="input-div pass">
-                            <div className="i">
-                                <i className="fas fa-lock"></i>
-                            </div>
-                            <div className="div">
-                                <input 
-                                    type="password" 
-                                    className="input" 
-                                    placeholder='Password'
-                                    name="password"
-                                    value={values.password}
-                                    onChange={handleChange} 
-                                />
-                                {errors.password && <span className="error-message">{errors.password}</span>} {/* Display password error */}
-                            </div>
-                        </div>
-
-                        {/* User Type Dropdown */}
-                        <div className="input-div user-type">
-                            <div className="i">
-                                <i className="fas fa-user-circle"></i>
-                            </div>
-                            <div className="div">
-                                <select 
-                                    name="userType"
-                                    className="input" 
-                                    value={values.userType}
-                                    onChange={handleChange} 
-                                >
-                                    <option value="">Select User Type</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                    {/* Add other user types if needed */}
-                                </select>
-                                {errors.userType && <span className="error-message">{errors.userType}</span>} {/* Display user type error */}
-                            </div>
-                        </div>
-
-                        <input type="submit" className="btn" value="Sign In" />
-                        <a href='/signup' className="abtn">SIGN UP</a>
-                        <p>Don't Have An Account?</p>
-                    </form>
-                </div>
+  return (
+    <div className="signin-page">
+      <div className="container">
+        <div className="login-content">
+          <h3 className="title text-center mb-4">Sign In</h3>
+          <form onSubmit={handleSignin}>
+            <div className="input-div one mb-3">
+              <div className="i">
+                <i className="fas fa-envelope"></i>
+              </div>
+              <div className="div">
+                <input
+                  type="email"
+                  className="input"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email Address"
+                  required
+                />
+              </div>
             </div>
-        </div>
-    );
-};
 
-export default SignIn;
+            <div className="input-div pass mb-3">
+              <div className="i">
+                <i className="fas fa-lock"></i>
+              </div>
+              <div className="div">
+                <input
+                  type="password"
+                  className="input"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Dropdown for user type */}
+            <div className="input-div user-type mb-3">
+              <div className="i">
+                <i className="fas fa-user-circle"></i>
+              </div>
+              <div className="div">
+                <select 
+                  className="input"
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary w-100">
+              Sign In
+            </button>
+          </form>
+
+          <p className="text-center mt-3">
+            Don't have an account? <a href="/signup">Sign Up</a>
+          </p>
+        </div>
+      </div>
+      <style jsx>{`
+        .signin-page {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f4f4f9;
+        }
+
+        .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+        }
+
+        .login-content {
+          width: 400px;
+          background-color: #fff;
+          padding: 40px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+
+        .input-div {
+          margin-bottom: 20px;
+          position: relative;
+        }
+
+        .input-div .i {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          font-size: 18px;
+          color: #777;
+        }
+
+        .input-div .div {
+          position: relative;
+        }
+
+        .input {
+          width: 100%;
+          padding: 10px 40px;
+          font-size: 16px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          outline: none;
+          transition: all 0.3s ease;
+        }
+
+        .input:focus {
+          border-color: #6c63ff;
+        }
+
+        .btn {
+          width: 100%;
+          padding: 12px;
+          background-color: #6c63ff;
+          border: none;
+          border-radius: 4px;
+          color: #fff;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+          background-color: #5a54e1;
+        }
+
+        .abtn {
+          display: block;
+          text-align: center;
+          color: #6c63ff;
+          font-size: 14px;
+          margin-top: 15px;
+        }
+
+        .abtn:hover {
+          text-decoration: underline;
+        }
+
+        .error-message {
+          color: red;
+          font-size: 14px;
+          margin-top: 5px;
+        }
+
+        a {
+          display: block;
+          text-align: center;
+          font-size: 14px;
+          margin-top: 15px;
+          text-decoration: none;
+        }
+
+        a:hover {
+          text-decoration: underline;
+        }
+
+        .user-type select {
+          padding: 10px;
+          width: 100%;
+          border-radius: 4px;
+          border: 1px solid #ddd;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default Signin;

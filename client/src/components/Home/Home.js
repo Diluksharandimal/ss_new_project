@@ -1,173 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
-import './Home.css';
+import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
-function Home() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    profilePicture: null,
-  });
-
-  const [userInfo, setUserInfo] = useState({
-    id: '',
-    email: '',
-    name: '',
-  });
-
-  const navigate = useNavigate(); 
-  const BACKEND_URL = 'https://ss-new-project-server.vercel.app'; // Add your backend URL here
-
-  useEffect(() => {
-    // Fetch user data from the API
-    const fetchUserData = async () => {
-      try {
-          const token = localStorage.getItem('token'); // Get the JWT from local storage
-  
-          if (!token) {
-              console.error('No token found, user is not authenticated.');
-              navigate('/signin'); 
-              return; 
-          }
-  
-          const response = await fetch(`${BACKEND_URL}/users`, { // Use the backend URL
-              method: 'GET',
-              headers: {
-                  Authorization: `Bearer ${token}`, // Include the token in the request headers
-                  'Content-Type': 'application/json', 
-              },
-          });
-  
-          if (response.status === 403) {
-              // Token is invalid or expired
-              alert("Your session has expired, please log in again.");
-              localStorage.removeItem('token'); // Optionally clear token from local storage
-              navigate('/signin'); // Redirect to sign-in
-              return; 
-          }
-  
-          if (!response.ok) {
-              console.error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
-              throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-          }
-  
-          const data = await response.json();
-  
-          setUserInfo({
-              id: data.id, 
-              email: data.email,
-              name: data.name,
-          });
-  
-          setFormData({
-              fullName: data.name || '', 
-              email: data.email || '', 
-              profilePicture: null, 
-          });
-      } catch (error) {
-          console.error('Error fetching user data:', error.message); 
-      }
-    };
-  
-    fetchUserData();
-  }, [navigate, BACKEND_URL]); 
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, profilePicture: e.target.files[0] });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form Data:', formData);
-  };
-
-  const handleLogout = async () => {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
-    
-    if (confirmLogout) {
-        const token = localStorage.getItem('token');
-        try {
-            await fetch(`${BACKEND_URL}/logout`, { // Use the backend URL
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-            });
-            localStorage.removeItem('token');  // Remove token from local storage
-            console.log('User logged out');     // Logs logout action in console
-            navigate('/');                      // Navigate to home page
-        } catch (error) {
-            console.error("Logout failed:", error); // Log error if logout fails
-        }
-    } else {
-        console.log('Logout canceled');          // Logs cancel action in console
+// Inline styles as JavaScript objects
+const styles = {
+    body: {
+        height: '100%',
+        margin: '0'
+    },
+    backgroundRadialGradient: {
+        minHeight: '100vh',
+        backgroundColor: 'hsl(218, 41%, 15%)',
+        backgroundImage: `radial-gradient(650px circle at 0% 0%, 
+            hsl(218, 41%, 35%) 15%, 
+            hsl(218, 41%, 30%) 35%, 
+            hsl(218, 41%, 20%) 75%, 
+            hsl(218, 41%, 19%) 80%, 
+            transparent 100%),
+            radial-gradient(1250px circle at 100% 100%, 
+            hsl(218, 41%, 45%) 15%, 
+            hsl(218, 41%, 30%) 35%, 
+            hsl(218, 41%, 20%) 75%, 
+            hsl(218, 41%, 19%) 80%, 
+            transparent 100%)`,
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    content: {
+        textAlign: 'center',
+        color: 'hsl(218, 81%, 95%)',
+        zIndex: 10
+    },
+    btn: {
+        display: 'inline-block',
+        textDecoration: 'none',
+        color: 'white',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        padding: '15px 30px',
+        borderRadius: '10px',
+        transition: 'all 0.3s ease',
+        width: '200px',
+        margin: '10px'
+    },
+    btnPrimary: {
+        backgroundColor: 'hsl(218, 81%, 45%)',
+        border: 'none',
+    },
+    btnPrimaryHover: {
+        backgroundColor: 'hsl(218, 81%, 55%)',
+    },
+    btnSuccess: {
+        backgroundColor: 'hsl(134, 61%, 41%)',
+        border: 'none',
+    },
+    btnSuccessHover: {
+        backgroundColor: 'hsl(134, 61%, 51%)',
     }
-  };
+};
 
-  return (
-    <div className='home'>
-      <p className="admin-welcome">{userInfo.name}, Welcome to Home!</p>
-      <div className="app-container">
-        <div className="profile-card">
-          <div className="profile-image">
-            <img
-              src={formData.profilePicture ? URL.createObjectURL(formData.profilePicture) : "https://via.placeholder.com/150"}
-              alt="Profile"
-            />
-          </div>
-          <h2>{formData.fullName}</h2>
-          <div className="user-info">
-            <p className='user_data'>User ID: {userInfo.id}</p>
-            <p className='user_data'>Name: {userInfo.name}</p>
-            <p className='user_data'>Email: {userInfo.email}</p>
-          </div>
-          <div className="buttons">
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        </div>
+const Home = () => {
+    return (
+        <div style={styles.backgroundRadialGradient}>
+            <div style={styles.content}>
+                <h1 className="my-5 display-5 fw-bold ls-tight">
+                    Welcome to <br />
+                    <span style={{ color: 'hsl(218, 81%, 75%)' }}>InfoLock</span>
+                </h1>
+                <p className="mb-4 opacity-70" style={{ color: 'hsl(218, 81%, 85%)' }}>
+                    InfoLock is dedicated to providing top-notch solutions for software security.
+                    We aim to help you protect your applications from vulnerabilities and ensure data integrity.
+                </p>
 
-        <div className="edit-profile-form">
-          <h2 className='home_h1'>Edit Profile</h2>
-          <form onSubmit={handleSubmit}>
-            <label>Full Name</label>
-            <input 
-              type="text" 
-              name="fullName"
-              className='home_input' 
-              value={formData.fullName} 
-              onChange={handleChange} 
-            />
-            
-            <label>Email</label>
-            <input 
-              type="text"
-              name="email"
-              className='home_input' 
-              value={formData.email} 
-              onChange={handleChange} 
-            />
-            
-            <label>Profile Picture</label>
-            <input 
-              type="file" 
-              name="profilePicture" 
-              className='home_input' 
-              onChange={handleFileChange} 
-            />
-            
-            <button type="submit" className="update-btn">Update</button>
-          </form>
+                {/* Sign In button */}
+                <a
+                    href="/SignIn"
+                    className="btn"
+                    style={{ ...styles.btn, ...styles.btnPrimary }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = styles.btnPrimaryHover.backgroundColor)}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = styles.btnPrimary.backgroundColor)}
+                >
+                    Sign In
+                </a>
+
+                {/* Sign Up button */}
+                <a
+                    href="/SignUp"
+                    className="btn"
+                    style={{ ...styles.btn, ...styles.btnSuccess }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = styles.btnSuccessHover.backgroundColor)}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = styles.btnSuccess.backgroundColor)}
+                >
+                    Sign Up
+                </a>
+            </div>
         </div>
-      </div>
-    </div>
-  );
-}
+    );
+};
 
 export default Home;

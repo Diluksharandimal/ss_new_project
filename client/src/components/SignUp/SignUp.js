@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './SignUp.css';
 import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css'; 
 import { useNavigate } from 'react-router-dom'; 
@@ -28,12 +27,14 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Custom validation logic
     const validationErrors = validateForm(values);
     setErrors(validationErrors);
 
+    // If no validation errors, submit the form
     if (!validationErrors.name && !validationErrors.email && !validationErrors.password && !validationErrors.confirmPassword) {
       try {
-        const response = await axios.post('https://ss-new-project-server.vercel.app/signup', values); // Updated URL
+        const response = await axios.post('https://ss-new-project.vercel.app/signup', values); // Updated URL
 
         if (response.status === 200) {
           const { token } = response.data; // Assume the token is returned in response.data
@@ -69,15 +70,9 @@ const SignUp = () => {
 
   return (
     <div className="signup-page">
-      <img className="wave" src="" alt="wave" />
       <div className="container">
-        <div className="img">
-          <h1 className="title1">SIGN UP</h1>
-          <img src="" alt="background" />
-        </div>
         <div className="login-content">
           <form onSubmit={handleSubmit}>
-            <img src="" alt="avatar" />
             <h2 className="title">Welcome</h2>
 
             {errors.general && <p className="error-message">{errors.general}</p>}
@@ -176,6 +171,121 @@ const SignUp = () => {
         </div>
       </div>
       <ToastContainer />
+
+      <style jsx>{`
+        .signup-page {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f4f4f9;
+        }
+
+        .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+        }
+
+        .login-content {
+          width: 400px;
+          background-color: #fff;
+          padding: 40px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+          text-align: center;
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+
+        .input-div {
+          margin-bottom: 20px;
+          position: relative;
+        }
+
+        .input-div .i {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          font-size: 18px;
+          color: #777;
+        }
+
+        .input-div .div {
+          position: relative;
+        }
+
+        .input {
+          width: 100%;
+          padding: 10px 40px;
+          font-size: 16px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          outline: none;
+          transition: all 0.3s ease;
+        }
+
+        .input:focus {
+          border-color: #6c63ff;
+        }
+
+        .btn {
+          width: 100%;
+          padding: 12px;
+          background-color: #6c63ff;
+          border: none;
+          border-radius: 4px;
+          color: #fff;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+          background-color: #5a54e1;
+        }
+
+        .abtn {
+          display: block;
+          text-align: center;
+          color: #6c63ff;
+          font-size: 14px;
+          margin-top: 15px;
+        }
+
+        .abtn:hover {
+          text-decoration: underline;
+        }
+
+        .error-message {
+          color: red;
+          font-size: 14px;
+          margin-top: 5px;
+        }
+
+        a {
+          display: block;
+          text-align: center;
+          font-size: 14px;
+          margin-top: 15px;
+          text-decoration: none;
+        }
+
+        a:hover {
+          text-decoration: underline;
+        }
+
+        .user-type select {
+          padding: 10px;
+          width: 100%;
+          border-radius: 4px;
+          border: 1px solid #ddd;
+        }
+      `}</style>
     </div>
   );
 };

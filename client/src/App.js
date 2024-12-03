@@ -2,7 +2,6 @@ import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
 import Home from './components/Home/Home';
 import AdminHome from './components/AdminHome/AdminHome';
@@ -17,7 +16,7 @@ function App() {
         <ToastContainer position="top-center" style={{marginTop: "70px"}}/>
             <main>
               <Routes>
-                <Route path='/' element={<LandingPage/>}/>
+                <Route path='/' element={<Home/>}/>
                 <Route path='/signup' element={<SignUp/>}/>
                 <Route path="/signin" element={<SignIn/>}/>
                 <Route path="/home" element={<Home/>}/>
