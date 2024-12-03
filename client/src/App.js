@@ -8,6 +8,7 @@ import AdminHome from './components/AdminHome/AdminHome';
 import SignUp from './components/SignUp/SignUp';
 import UserActivities from './components/UserActivities/UserActivities';
 import ManageUsers from './components/ManageUsers/ManageUsers';
+import Dashbord from './components/Home/Dashbord/Dashbord';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/adminhome" element={<AdminHome/>}/>
                 <Route path="/useractivity" element={<UserActivities/>}/>
                 <Route path="/usermanage" element={<ManageUsers/>}/>
+                <Route path="/dashboard" element={<Dashbord/>}/>
               </Routes>
             </main>
         </BrowserRouter>
