@@ -22,7 +22,7 @@ function Signin() {
   const handleSignin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8089/signin", {
+      const response = await axios.post("https://ss-new-project-server.vercel.app/signin", {
         email,
         password,
         userType, // Include the userType in the request
