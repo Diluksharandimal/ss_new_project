@@ -9,7 +9,7 @@ const app = express();
 
 // Allow specific origins in CORS
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGIN || 'https://ss-new-project.vercel.app', // Update with the actual allowed origin in production
+    origin: process.env.ALLOWED_ORIGIN || 'https://www.infolock.live', // Update with the actual allowed origin in production
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
