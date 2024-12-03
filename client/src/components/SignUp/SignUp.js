@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
-import { useNavigate } from 'react-router-dom'; 
-import axios from 'axios'; 
-import validateForm from '../Validation/SignUpValidation'; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import validateForm from '../Validation/SignUpValidation'; // Assuming validateForm checks fields
 
 const SignUp = () => {
   const [values, setValues] = useState({
@@ -13,9 +13,9 @@ const SignUp = () => {
     confirmPassword: '',
     userType: 'user', // Default value
   });
-  
+
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setValues({
@@ -27,22 +27,19 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Custom validation logic
+    // Validate form fields
     const validationErrors = validateForm(values);
     setErrors(validationErrors);
 
-    // If no validation errors, submit the form
-    if (!validationErrors.name && !validationErrors.email && !validationErrors.password && !validationErrors.confirmPassword) {
+    // If no validation errors, proceed with the submission
+    if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post('https://ss-new-project-server.vercel.app/signup', values); // Updated URL
+        const response = await axios.post('https://ss-new-project-server.vercel.app/signup', values);
 
-        if (response.status === 200) {
-          const { token } = response.data; // Assume the token is returned in response.data
-          
-          // Store the token in localStorage (or sessionStorage)
-          localStorage.setItem('token', token);
+        if (response.status === 201) {
           toast.success('Signup successful!');
-          
+          localStorage.setItem('token', response.data.token || ''); // Assuming response includes a token
+
           setValues({
             name: '',
             email: '',
@@ -50,7 +47,8 @@ const SignUp = () => {
             confirmPassword: '',
             userType: 'user', // Reset to default value
           });
-          navigate('/signin');
+
+          navigate('/signin'); // Redirect to sign-in page
         } else {
           setErrors({ general: 'Signup failed. Please try again.' });
         }
@@ -82,13 +80,13 @@ const SignUp = () => {
                 <i className="fas fa-user"></i>
               </div>
               <div className="div">
-                <input 
-                  type="text" 
-                  className="input" 
-                  placeholder='Name'
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Name"
                   name="name"
                   value={values.name}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.name && <p className="error-message">{errors.name}</p>}
               </div>
@@ -99,13 +97,13 @@ const SignUp = () => {
                 <i className="fas fa-envelope"></i>
               </div>
               <div className="div">
-                <input 
-                  type="email" 
-                  className="input" 
-                  placeholder='Email'
+                <input
+                  type="email"
+                  className="input"
+                  placeholder="Email"
                   name="email"
                   value={values.email}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.email && <p className="error-message">{errors.email}</p>}
               </div>
@@ -116,13 +114,13 @@ const SignUp = () => {
                 <i className="fas fa-lock"></i>
               </div>
               <div className="div">
-                <input 
-                  type="password" 
-                  className="input" 
-                  placeholder='Password'
+                <input
+                  type="password"
+                  className="input"
+                  placeholder="Password"
                   name="password"
                   value={values.password}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.password && <p className="error-message">{errors.password}</p>}
               </div>
@@ -133,13 +131,13 @@ const SignUp = () => {
                 <i className="fas fa-lock"></i>
               </div>
               <div className="div">
-                <input 
-                  type="password" 
-                  className="input" 
-                  placeholder='Confirm Password'
+                <input
+                  type="password"
+                  className="input"
+                  placeholder="Confirm Password"
                   name="confirmPassword"
                   value={values.confirmPassword}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
               </div>
@@ -151,8 +149,8 @@ const SignUp = () => {
                 <i className="fas fa-user-circle"></i>
               </div>
               <div className="div">
-                <select 
-                  className="input" 
+                <select
+                  className="input"
                   name="userType"
                   value={values.userType}
                   onChange={handleChange}
@@ -165,7 +163,7 @@ const SignUp = () => {
 
             <a href="#">Forgot Password?</a>
             <input type="submit" className="btn" value="Sign Up" />
-            <a href='/signin' className="abtn">SIGN IN</a>
+            <a href="/signin" className="abtn">SIGN IN</a>
             <p>Already Have An Account?</p>
           </form>
         </div>

@@ -65,6 +65,7 @@ async function logAction(userId, action) {
 }
 
 // Signup route
+// Signup route
 app.post("/signup", async (req, res) => {
     const { name, email, password, userType } = req.body;
 
@@ -73,14 +74,28 @@ app.post("/signup", async (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
+    // SQL query to insert a new user
     const sql = "INSERT INTO signs (name, email, password, userType) VALUES (?, ?, ?, ?)";
 
     try {
+        // Check if the user already exists
+        const checkUserSql = "SELECT * FROM signs WHERE email = ?";
+        const [existingUser] = await db.query(checkUserSql, [email]);
+
+        if (existingUser.length > 0) {
+            return res.status(409).json({ error: "Email already exists" });
+        }
+
         // Hash the password before storing it
         const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
 
         const values = [name, email, hashedPassword, userType];
+
+        // Insert the new user into the database
         await db.query(sql, values);
+
+        // Optionally, create a JWT token for the user
+        // const token = jwt.sign({ email }, 'your-jwt-secret', { expiresIn: '1h' });
 
         res.status(201).json({ message: "User Registered Successfully" });
     } catch (err) {
