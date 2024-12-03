@@ -67,7 +67,6 @@ async function logAction(userId, action) {
 app.post("/signup", async (req, res) => {
     const { name, email, password, userType } = req.body;
 
-    // Check if all required fields are provided
     if (!name || !email || !password || !userType) {
         return res.status(400).json({ error: "All fields are required" });
     }
@@ -75,21 +74,16 @@ app.post("/signup", async (req, res) => {
     const sql = "INSERT INTO signs (name, email, password, userType) VALUES (?, ?, ?, ?)";
 
     try {
-        // Log the incoming request data for debugging purposes
-        console.log("Request Data:", req.body);
-
         // Hash the password before storing it
         const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
+
         const values = [name, email, hashedPassword, userType];
-
-        // Execute the insert query
         await db.query(sql, values);
-
-        // Return success message
+        
         res.status(201).json({ message: "User Registered Successfully" });
     } catch (err) {
-        console.error("Error in /signup:", err); // Log the full error
-        res.status(500).json({ error: "Error registering user", details: err.message });
+        console.error("Error in /signup:", err);
+        res.status(500).json({ error: "Error registering user" });
     }
 });
 
@@ -143,12 +137,12 @@ app.post("/logout", authenticateToken, async (req, res) => {
 // Fetch user data route
 app.get("/users", authenticateToken, async (req, res) => {
     const sql = "SELECT * FROM signs WHERE id = ?";
-
+    
     try {
         const [data] = await db.query(sql, [req.user.id]);
-
+        
         await logAction(req.user.id, "Viewed own data");
-
+        
         if (data.length > 0) {
             return res.json(data[0]);
         } else {
@@ -157,6 +151,25 @@ app.get("/users", authenticateToken, async (req, res) => {
     } catch (err) {
         console.error("Error fetching user data:", err);
         res.status(500).json({ error: "Error fetching data" });
+    }
+});
+
+// Corrected getUserType route
+app.get('/getUserType', async (req, res) => {
+    const email = req.query.email;
+    const sql = "SELECT userType FROM signs WHERE email = ?";
+
+    try {
+        const [data] = await db.query(sql, [email]);
+
+        if (data.length > 0) {
+            res.json({ userType: data[0].userType });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (err) {
+        console.error("Error fetching user type:", err);
+        res.status(500).json({ message: 'Error fetching user type' });
     }
 });
 
