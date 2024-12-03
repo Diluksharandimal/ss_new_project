@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
-import { useNavigate } from 'react-router-dom'; 
-import axios from 'axios'; 
-import validateForm from '../Validation/SignUpValidation'; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import validateForm from '../Validation/SignUpValidation';
 
 const SignUp = () => {
   const [values, setValues] = useState({
@@ -15,34 +15,35 @@ const SignUp = () => {
   });
   
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setValues({
-      ...values,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setValues(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Custom validation logic
+    // Validate the form
     const validationErrors = validateForm(values);
     setErrors(validationErrors);
 
     // If no validation errors, submit the form
-    if (!validationErrors.name && !validationErrors.email && !validationErrors.password && !validationErrors.confirmPassword) {
+    if (Object.keys(validationErrors).length === 0) {
       try {
         const response = await axios.post('https://ss-new-project-server.vercel.app/signup', values); // Updated URL
 
         if (response.status === 200) {
-          const { token } = response.data; // Assume the token is returned in response.data
-          
+          const { token } = response.data; // Assuming token is returned
+
           // Store the token in localStorage (or sessionStorage)
           localStorage.setItem('token', token);
           toast.success('Signup successful!');
-          
+
           setValues({
             name: '',
             email: '',
@@ -50,18 +51,24 @@ const SignUp = () => {
             confirmPassword: '',
             userType: 'user', // Reset to default value
           });
+
           navigate('/signin');
         } else {
           setErrors({ general: 'Signup failed. Please try again.' });
         }
       } catch (error) {
         console.error('Error:', error);
-        if (error.response && error.response.status === 400) {
-          setErrors({ general: 'Invalid input data.' });
-        } else if (error.response && error.response.status === 409) {
-          setErrors({ general: 'Email already exists.' });
+        if (error.response) {
+          const { status } = error.response;
+          if (status === 400) {
+            setErrors({ general: 'Invalid input data.' });
+          } else if (status === 409) {
+            setErrors({ general: 'Email already exists.' });
+          } else {
+            setErrors({ general: 'An error occurred. Please try again later.' });
+          }
         } else {
-          setErrors({ general: 'An error occurred. Please try again later.' });
+          setErrors({ general: 'Network error. Please try again later.' });
         }
         toast.error('An error occurred. Please try again later.');
       }
@@ -85,10 +92,10 @@ const SignUp = () => {
                 <input 
                   type="text" 
                   className="input" 
-                  placeholder='Name'
+                  placeholder="Name"
                   name="name"
                   value={values.name}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.name && <p className="error-message">{errors.name}</p>}
               </div>
@@ -102,10 +109,10 @@ const SignUp = () => {
                 <input 
                   type="email" 
                   className="input" 
-                  placeholder='Email'
+                  placeholder="Email"
                   name="email"
                   value={values.email}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.email && <p className="error-message">{errors.email}</p>}
               </div>
@@ -119,10 +126,10 @@ const SignUp = () => {
                 <input 
                   type="password" 
                   className="input" 
-                  placeholder='Password'
+                  placeholder="Password"
                   name="password"
                   value={values.password}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.password && <p className="error-message">{errors.password}</p>}
               </div>
@@ -136,10 +143,10 @@ const SignUp = () => {
                 <input 
                   type="password" 
                   className="input" 
-                  placeholder='Confirm Password'
+                  placeholder="Confirm Password"
                   name="confirmPassword"
                   value={values.confirmPassword}
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
                 {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
               </div>
@@ -165,7 +172,7 @@ const SignUp = () => {
 
             <a href="#">Forgot Password?</a>
             <input type="submit" className="btn" value="Sign Up" />
-            <a href='/signin' className="abtn">SIGN IN</a>
+            <a href="/signin" className="abtn">SIGN IN</a>
             <p>Already Have An Account?</p>
           </form>
         </div>
