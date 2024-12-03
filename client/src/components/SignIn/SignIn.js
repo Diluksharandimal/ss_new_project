@@ -29,7 +29,13 @@ function Signin() {
       });
       toast.success(response.data.message);
       localStorage.setItem("token", response.data.token); // Save token to localStorage
-      navigate("/dashboard"); // Use navigate() instead of history.push
+
+      // Redirect based on userType
+      if (userType === "admin") {
+        navigate("/adminhome"); // Navigate to admin dashboard
+      } else {
+        navigate("/dashboard"); // Navigate to user dashboard
+      }
     } catch (err) {
       toast.error("Login Failed");
     }
